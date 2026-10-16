@@ -14,7 +14,13 @@ describe('RecordingBuffer', () => {
     r.add({ type: 'cc', channel: 0, controller: 123, value: 0 }, 540); // mode message ignored
     const take = r.finish(1000);
     expect(take.notes).toHaveLength(1);
-    expect(take.notes[0]).toMatchObject({ pitch: 60, tick: 10, duration: 490, velocity: 88, releaseVelocity: 20 });
+    expect(take.notes[0]).toMatchObject({
+      pitch: 60,
+      tick: 10,
+      duration: 490,
+      velocity: 88,
+      releaseVelocity: 20,
+    });
     expect(take.controls.map((c) => [c.kind, c.controller, c.value])).toEqual([
       ['cc', 64, 127],
       ['cc', 64, 45],
@@ -36,7 +42,14 @@ describe('RecordingBuffer', () => {
   });
 
   it('applies the channel filter', () => {
-    const r = new RecordingBuffer({ pedals: true, controllers: true, pitchBend: true, aftertouch: true, programChange: true, channel: 1 });
+    const r = new RecordingBuffer({
+      pedals: true,
+      controllers: true,
+      pitchBend: true,
+      aftertouch: true,
+      programChange: true,
+      channel: 1,
+    });
     r.add({ type: 'noteOn', channel: 0, note: 60, velocity: 100 }, 0);
     r.add({ type: 'noteOff', channel: 0, note: 60, velocity: 0 }, 10);
     expect(r.finish(20).notes).toHaveLength(0);
@@ -45,10 +58,25 @@ describe('RecordingBuffer', () => {
 
 describe('mergeTake', () => {
   it('replaces material inside the range in replace mode', () => {
-    const existing = { notes: [createNote({ pitch: 50, tick: 0, duration: 10, velocity: 1 }), createNote({ pitch: 51, tick: 5000, duration: 10, velocity: 1 })], controls: [] };
-    const take = { notes: [createNote({ pitch: 60, tick: 100, duration: 10, velocity: 1 })], controls: [], start: 100, end: 200 };
-    expect(mergeTake(existing, take, 'replace', { start: 0, end: 1000 }).notes.map((n) => n.pitch)).toEqual([60, 51]);
-    expect(mergeTake(existing, take, 'overdub', { start: 0, end: 1000 }).notes.map((n) => n.pitch)).toEqual([50, 60, 51]);
+    const existing = {
+      notes: [
+        createNote({ pitch: 50, tick: 0, duration: 10, velocity: 1 }),
+        createNote({ pitch: 51, tick: 5000, duration: 10, velocity: 1 }),
+      ],
+      controls: [],
+    };
+    const take = {
+      notes: [createNote({ pitch: 60, tick: 100, duration: 10, velocity: 1 })],
+      controls: [],
+      start: 100,
+      end: 200,
+    };
+    expect(mergeTake(existing, take, 'replace', { start: 0, end: 1000 }).notes.map((n) => n.pitch)).toEqual([
+      60, 51,
+    ]);
+    expect(mergeTake(existing, take, 'overdub', { start: 0, end: 1000 }).notes.map((n) => n.pitch)).toEqual([
+      50, 60, 51,
+    ]);
   });
 });
 

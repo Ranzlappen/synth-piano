@@ -44,7 +44,11 @@ const variants: Partial<SheetExportOptions>[] = [
 describe('notation invariants', () => {
   for (const [i, v] of variants.entries()) {
     it(`every voice fills its bar exactly (variant ${i}: ${JSON.stringify(v)})`, () => {
-      for (const project of [pianoPerformance({ jitterTicks: 80 }), randomProject(i + 1), randomProject(i + 100)]) {
+      for (const project of [
+        pianoPerformance({ jitterTicks: 80 }),
+        randomProject(i + 1),
+        randomProject(i + 100),
+      ]) {
         const score = transcribe(project, { ...DEFAULT_SHEET_OPTIONS, ...v });
         for (const part of score.parts) {
           part.measures.forEach((pm, mi) => {

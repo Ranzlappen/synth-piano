@@ -1,6 +1,15 @@
 // A synthetic but realistic piano performance used by notation tests: timing jitter,
 // uneven note lengths, pedal changes, a crescendo, triplets and staccato notes.
-import { createControl, createNote, createProject, createTrack, PPQ, type ControlEvent, type Note, type Project } from '@core/model';
+import {
+  createControl,
+  createNote,
+  createProject,
+  createTrack,
+  PPQ,
+  type ControlEvent,
+  type Note,
+  type Project,
+} from '@core/model';
 
 export function seededRandom(seed = 1): () => number {
   let s = seed >>> 0;
@@ -10,7 +19,9 @@ export function seededRandom(seed = 1): () => number {
   };
 }
 
-export function pianoPerformance(options: { jitterTicks?: number; bpm?: number; seed?: number } = {}): Project {
+export function pianoPerformance(
+  options: { jitterTicks?: number; bpm?: number; seed?: number } = {},
+): Project {
   const rand = seededRandom(options.seed ?? 7);
   const jitter = () => Math.round((rand() - 0.5) * 2 * (options.jitterTicks ?? 40));
   const q = PPQ;
@@ -18,10 +29,19 @@ export function pianoPerformance(options: { jitterTicks?: number; bpm?: number; 
   const notes: Note[] = [];
   const controls: ControlEvent[] = [];
   const add = (pitch: number, tick: number, len: number, vel: number) =>
-    notes.push(createNote({ pitch, tick: Math.max(0, tick + jitter()), duration: Math.max(30, len + jitter()), velocity: vel }));
+    notes.push(
+      createNote({
+        pitch,
+        tick: Math.max(0, tick + jitter()),
+        duration: Math.max(30, len + jitter()),
+        velocity: vel,
+      }),
+    );
 
   // Bars 1-4: C major melody in eighths with a crescendo; LH whole-note bass + half-note chords.
-  const melody = [72, 74, 76, 77, 79, 77, 76, 74, 76, 77, 79, 81, 83, 81, 79, 77, 76, 74, 72, 74, 76, 74, 72, 71];
+  const melody = [
+    72, 74, 76, 77, 79, 77, 76, 74, 76, 77, 79, 81, 83, 81, 79, 77, 76, 74, 72, 74, 76, 74, 72, 71,
+  ];
   melody.forEach((p, i) => add(p, i * (q / 2), q / 2 - 60, 50 + Math.round(i * 2.5)));
   add(72, 12 * q, 4 * q - 80, 100);
   for (let b = 0; b < 4; b++) {
@@ -50,6 +70,12 @@ export function pianoPerformance(options: { jitterTicks?: number; bpm?: number; 
   return createProject({
     tempos: [{ tick: 0, bpm: options.bpm ?? 100 }],
     tracks: [createTrack({ name: 'Piano', notes, controls }, 0)],
-    meta: { title: 'Test Piece', subtitle: 'for piano', composer: 'Test Composer', arranger: '', copyright: '© 2026 Test' },
+    meta: {
+      title: 'Test Piece',
+      subtitle: 'for piano',
+      composer: 'Test Composer',
+      arranger: '',
+      copyright: '© 2026 Test',
+    },
   });
 }

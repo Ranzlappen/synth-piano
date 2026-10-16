@@ -61,7 +61,14 @@ export type NDirection =
   | { kind: 'dynamic'; mark: DynamicMark; staff: number; offset: number }
   | { kind: 'wedge'; type: 'crescendo' | 'diminuendo' | 'stop'; staff: number; offset: number }
   | { kind: 'pedal'; type: 'start' | 'stop' | 'change'; line: boolean; staff: number; offset: number }
-  | { kind: 'words'; text: string; staff: number; offset: number; placement: 'above' | 'below'; italic: boolean }
+  | {
+      kind: 'words';
+      text: string;
+      staff: number;
+      offset: number;
+      placement: 'above' | 'below';
+      italic: boolean;
+    }
   | {
       kind: 'tempo';
       text: string;
@@ -202,10 +209,12 @@ export function transcribe(project: Project, o: SheetExportOptions): NScore {
   let lastTick = 0;
   for (const t of selected) for (const n of t.notes) lastTick = Math.max(lastTick, n.tick + n.duration);
   const fromBarIdx = Math.max(0, o.fromBar - 1);
-  const constMeter: Meter = sigOverride ?? (() => {
-    const seg = meterMap.segmentAt(o.timing === 'free' ? 0 : meterMap.barStart(fromBarIdx));
-    return { numerator: seg.numerator, denominator: seg.denominator };
-  })();
+  const constMeter: Meter =
+    sigOverride ??
+    (() => {
+      const seg = meterMap.segmentAt(o.timing === 'free' ? 0 : meterMap.barStart(fromBarIdx));
+      return { numerator: seg.numerator, denominator: seg.denominator };
+    })();
   const pickup = Math.max(0, o.pickupBeats);
 
   // Measures as frames in (scaled) quarter beats.
@@ -213,7 +222,10 @@ export function transcribe(project: Project, o: SheetExportOptions): NScore {
   const lastBeat = beatsOfTick(lastTick);
   if (useProjectMeter) {
     const firstFull = pickup > 0 ? fromBarIdx + 1 : fromBarIdx;
-    const lastIdx = o.toBar > 0 ? Math.max(firstFull, o.toBar - 1) : Math.max(firstFull, meterMap.barIndexAt(Math.max(0, lastTick - 1)));
+    const lastIdx =
+      o.toBar > 0
+        ? Math.max(firstFull, o.toBar - 1)
+        : Math.max(firstFull, meterMap.barIndexAt(Math.max(0, lastTick - 1)));
     if (pickup > 0) {
       const b = meterMap.bar(fromBarIdx);
       frames.push({
@@ -239,12 +251,22 @@ export function transcribe(project: Project, o: SheetExportOptions): NScore {
         ? fromBarIdx * L + pickup
         : beatsOfTick(meterMap.barStart(pickup > 0 ? fromBarIdx + 1 : fromBarIdx));
     if (pickup > 0)
-      frames.push({ startBeat: firstDownbeat - pickup, lengthBeats: pickup, meter: constMeter, barNumber: 0 });
+      frames.push({
+        startBeat: firstDownbeat - pickup,
+        lengthBeats: pickup,
+        meter: constMeter,
+        barNumber: 0,
+      });
     const maxBars = o.toBar > 0 ? Math.max(1, o.toBar - o.fromBar + 1 - (pickup > 0 ? 1 : 0)) : 10000;
     for (let i = 0; i < maxBars; i++) {
       const start = firstDownbeat + i * L;
       if (i > 0 && start >= lastBeat - EPS) break;
-      frames.push({ startBeat: start, lengthBeats: L, meter: constMeter, barNumber: o.fromBar + i + (pickup > 0 ? 1 : 0) });
+      frames.push({
+        startBeat: start,
+        lengthBeats: L,
+        meter: constMeter,
+        barNumber: o.fromBar + i + (pickup > 0 ? 1 : 0),
+      });
     }
   }
 
@@ -293,7 +315,8 @@ export function transcribe(project: Project, o: SheetExportOptions): NScore {
   if (o.skipLeadingEmptyBars && pickup === 0 && raw.length && frames.length > 1) {
     const firstOn = Math.min(...raw.map((r) => r.onBeat));
     let skip = 0;
-    while (skip < frames.length - 1 && frames[skip].startBeat + frames[skip].lengthBeats <= firstOn + 1 / 16) skip++;
+    while (skip < frames.length - 1 && frames[skip].startBeat + frames[skip].lengthBeats <= firstOn + 1 / 16)
+      skip++;
     if (skip > 0) {
       frames = frames.slice(skip);
       if (o.fromBar <= 1) {
@@ -302,14 +325,16 @@ export function transcribe(project: Project, o: SheetExportOptions): NScore {
       }
     }
   }
-  if (frames.length === 0) frames.push({ startBeat: 0, lengthBeats: 4, meter: { numerator: 4, denominator: 4 }, barNumber: 1 });
+  if (frames.length === 0)
+    frames.push({ startBeat: 0, lengthBeats: 4, meter: { numerator: 4, denominator: 4 }, barNumber: 1 });
 
   // Suggest a pickup when the music starts late in the first bar.
   let suggestedPickup = 0;
   if (pickup === 0 && raw.length) {
     const f = frames[0];
     const firstOn = Math.min(...raw.map((r) => r.onBeat)) - f.startBeat;
-    if (firstOn >= 0.5 && firstOn < f.lengthBeats) suggestedPickup = Math.round((f.lengthBeats - firstOn) * 2) / 2;
+    if (firstOn >= 0.5 && firstOn < f.lengthBeats)
+      suggestedPickup = Math.round((f.lengthBeats - firstOn) * 2) / 2;
   }
 
   // ---- measures in divisions ----
@@ -320,7 +345,8 @@ export function transcribe(project: Project, o: SheetExportOptions): NScore {
     implicit: f.barNumber === 0,
     start: Math.round((f.startBeat - origin) * DIV),
     length: Math.round(f.lengthBeats * DIV),
-    metricOffset: f.barNumber === 0 ? Math.max(0, measureLength(f.meter) - Math.round(f.lengthBeats * DIV)) : 0,
+    metricOffset:
+      f.barNumber === 0 ? Math.max(0, measureLength(f.meter) - Math.round(f.lengthBeats * DIV)) : 0,
     meter: f.meter,
     showMeter: false,
     keyFifths: 0,
@@ -389,7 +415,8 @@ export function transcribe(project: Project, o: SheetExportOptions): NScore {
     keyMinor = o.keyMinor;
   } else if (o.keyMode === 'project') {
     const startTick = useProjectMeter ? meterMap.barStart(fromBarIdx) : 0;
-    const ks = [...project.keySignatures].filter((k) => k.tick <= startTick).pop() ?? project.keySignatures[0];
+    const ks =
+      [...project.keySignatures].filter((k) => k.tick <= startTick).pop() ?? project.keySignatures[0];
     keyFifths = normaliseFifths((ks?.fifths ?? 0) + 7 * o.transpose);
     keyMinor = ks?.mode === 'minor';
   } else {
@@ -444,7 +471,8 @@ export function transcribe(project: Project, o: SheetExportOptions): NScore {
     // Staff layout.
     const staffMode = chooseStaffMode(o.staffMode, cleaned);
     const staves: 1 | 2 = staffMode === 'grand' ? 2 : 1;
-    const clefs: ('treble' | 'bass')[] = staffMode === 'grand' ? ['treble', 'bass'] : [staffMode === 'bass' ? 'bass' : 'treble'];
+    const clefs: ('treble' | 'bass')[] =
+      staffMode === 'grand' ? ['treble', 'bass'] : [staffMode === 'bass' ? 'bass' : 'treble'];
     if (staves === 2) assignHands(cleaned, o.handSplit, o.splitPoint);
 
     const partMeasures: NPartMeasure[] = measures.map(() => ({ voices: [], directions: [] }));
@@ -474,13 +502,17 @@ export function transcribe(project: Project, o: SheetExportOptions): NScore {
         for (const v of vs) v.stem = v === upper ? 'up' : 'down';
       }
     }
-    for (const pm of partMeasures) for (const v of pm.voices) beamAndTuplets(v, measures[partMeasures.indexOf(pm)]);
+    for (const pm of partMeasures)
+      for (const v of pm.voices) beamAndTuplets(v, measures[partMeasures.indexOf(pm)]);
 
     const expressionStaff = 1;
     const bottomStaff = staves;
     const addDirection = (pos: number, d: NDirection) => {
       const m = measureAt(Math.max(0, Math.min(scoreEnd - 1, pos)));
-      partMeasures[m.index].directions.push({ ...d, offset: Math.max(0, Math.min(m.length, pos - m.start)) } as NDirection);
+      partMeasures[m.index].directions.push({
+        ...d,
+        offset: Math.max(0, Math.min(m.length, pos - m.start)),
+      } as NDirection);
     };
 
     let dynamics = o.dynamics ? computeDynamics(cleaned, measures, o.dynamicsSensitivity) : [];
@@ -500,25 +532,47 @@ export function transcribe(project: Project, o: SheetExportOptions): NScore {
         const level = dynamicLevelIndex(loudness(around.map((n) => n.velocity)));
         const prevLevel = before ? DYNAMIC_LEVELS.findIndex((l) => l.mark === before.mark) : -1;
         const moved = h.type === 'crescendo' ? level > prevLevel : level < prevLevel;
-        if (prevLevel >= 0 && moved) dynamics.push({ pos: Math.min(...around.map((n) => n.qOn)), mark: DYNAMIC_LEVELS[level].mark });
+        if (prevLevel >= 0 && moved)
+          dynamics.push({ pos: Math.min(...around.map((n) => n.qOn)), mark: DYNAMIC_LEVELS[level].mark });
       }
     }
-    for (const d of dynamics) addDirection(d.pos, { kind: 'dynamic', mark: d.mark, staff: expressionStaff, offset: 0 });
+    for (const d of dynamics)
+      addDirection(d.pos, { kind: 'dynamic', mark: d.mark, staff: expressionStaff, offset: 0 });
     const controls = p.tracks.flatMap((t) => t.controls);
     const toDiv = (tick: number) => (beatsOfTick(tick) - origin) * DIV;
     const snap = (pos: number) => Math.round(pos / grid) * grid;
     if (o.pedal !== 'none') {
       for (const ev of pedalMarks(controls, toDiv, snap, scoreEnd, grid, o.pedal === 'lines'))
-        addDirection(ev.pos, { kind: 'pedal', type: ev.type, line: o.pedal === 'lines', staff: bottomStaff, offset: 0 });
+        addDirection(ev.pos, {
+          kind: 'pedal',
+          type: ev.type,
+          line: o.pedal === 'lines',
+          staff: bottomStaff,
+          offset: 0,
+        });
     }
     if (o.softPedal) {
       for (const [d, u] of pedalIntervals(controls, 67)) {
         const ds = snap(toDiv(d));
         const us = snap(toDiv(u));
         if (us <= 0 || ds >= scoreEnd || us - ds < grid) continue;
-        addDirection(Math.max(0, ds), { kind: 'words', text: 'una corda', staff: bottomStaff, offset: 0, placement: 'below', italic: true });
+        addDirection(Math.max(0, ds), {
+          kind: 'words',
+          text: 'una corda',
+          staff: bottomStaff,
+          offset: 0,
+          placement: 'below',
+          italic: true,
+        });
         if (us < scoreEnd)
-          addDirection(us, { kind: 'words', text: 'tre corde', staff: bottomStaff, offset: 0, placement: 'below', italic: true });
+          addDirection(us, {
+            kind: 'words',
+            text: 'tre corde',
+            staff: bottomStaff,
+            offset: 0,
+            placement: 'below',
+            italic: true,
+          });
       }
     }
     if (partIndex === 0 && o.showTempo) {
@@ -540,7 +594,8 @@ export function transcribe(project: Project, o: SheetExportOptions): NScore {
   });
 
   if (droppedOutside > 0) warnings.push(`${droppedOutside} note(s) outside the selected bars were skipped.`);
-  if (droppedShort > 0) warnings.push(`${droppedShort} very short note(s) were ignored (shorter than ${o.minNoteMs} ms).`);
+  if (droppedShort > 0)
+    warnings.push(`${droppedShort} very short note(s) were ignored (shorter than ${o.minNoteMs} ms).`);
   if (selected.length === 0) warnings.push('No notes to export — select tracks that contain notes.');
 
   return {
@@ -590,7 +645,9 @@ function straightenSwing(pos: number): number {
 export function pedalIntervals(controls: readonly ControlEvent[], controller: number): [number, number][] {
   const out: [number, number][] = [];
   let down: number | null = null;
-  const events = controls.filter((c) => c.kind === 'cc' && c.controller === controller).sort((a, b) => a.tick - b.tick);
+  const events = controls
+    .filter((c) => c.kind === 'cc' && c.controller === controller)
+    .sort((a, b) => a.tick - b.tick);
   for (const c of events) {
     if (c.value >= 64 && down === null) down = c.tick;
     else if (c.value < 64 && down !== null) {
@@ -946,7 +1003,10 @@ function layoutVoice(
   const out: (NEvent[] | null)[] = measures.map(() => null);
   const emptySet = new Set<number>();
   // Chord segments per measure.
-  const perMeasure = new Map<number, { start: number; end: number; chord: Chord; first: boolean; last: boolean }[]>();
+  const perMeasure = new Map<
+    number,
+    { start: number; end: number; chord: Chord; first: boolean; last: boolean }[]
+  >();
   for (const c of chords) {
     const startM = measures.findIndex((m) => c.on < m.start + m.length);
     for (let mi = Math.max(0, startM); mi < measures.length; mi++) {
@@ -998,7 +1058,12 @@ function layoutVoice(
           rest: false,
           measureRest: false,
           value: p.value,
-          pitches: notes.map((n) => ({ midi: n.pitch, ...spellPitch(n.pitch, keyFifths, keyMinor), tieStart, tieStop })),
+          pitches: notes.map((n) => ({
+            midi: n.pitch,
+            ...spellPitch(n.pitch, keyFifths, keyMinor),
+            tieStart,
+            tieStop,
+          })),
           articulations,
         });
       });
@@ -1019,7 +1084,8 @@ function beamAndTuplets(v: NVoice, m: NMeasureInfo): void {
   let runGroup = -1;
   let runTriplet = false;
   const flush = () => {
-    if (run.length >= 2) run.forEach((e, i) => (e.beam = i === 0 ? 'begin' : i === run.length - 1 ? 'end' : 'continue'));
+    if (run.length >= 2)
+      run.forEach((e, i) => (e.beam = i === 0 ? 'begin' : i === run.length - 1 ? 'end' : 'continue'));
     run = [];
   };
   for (const e of v.events) {
@@ -1043,10 +1109,17 @@ function beamAndTuplets(v: NVoice, m: NMeasureInfo): void {
     }
     const beat = Math.floor(e.start / DIV);
     let j = i;
-    while (j + 1 < v.events.length && v.events[j + 1].value.triplet && Math.floor(v.events[j + 1].start / DIV) === beat) j++;
+    while (
+      j + 1 < v.events.length &&
+      v.events[j + 1].value.triplet &&
+      Math.floor(v.events[j + 1].start / DIV) === beat
+    )
+      j++;
     const members = v.events.slice(i, j + 1);
     const fullyBeamed =
-      members.every((x) => !x.rest && x.beam) && members[0].beam === 'begin' && members[members.length - 1].beam === 'end';
+      members.every((x) => !x.rest && x.beam) &&
+      members[0].beam === 'begin' &&
+      members[members.length - 1].beam === 'end';
     members[0].tuplet = 'start';
     members[members.length - 1].tuplet = members.length === 1 ? 'start' : 'stop';
     members[0].tupletBracket = !fullyBeamed;
@@ -1064,7 +1137,10 @@ function computeDynamics(
   for (const m of measures) {
     if (sensitivity === 'high' && m.length >= DIV * 2) {
       const half = Math.round(m.length / 2 / DIV) * DIV || m.length / 2;
-      windows.push({ start: m.start, end: m.start + half }, { start: m.start + half, end: m.start + m.length });
+      windows.push(
+        { start: m.start, end: m.start + half },
+        { start: m.start + half, end: m.start + m.length },
+      );
     } else windows.push({ start: m.start, end: m.start + m.length });
   }
   if (sensitivity === 'low') {
@@ -1228,7 +1304,14 @@ function tempoMarks(
     last = c.bpm;
     const m = measures.find((x) => c.pos >= x.start && c.pos < x.start + x.length) ?? first;
     const u = beatUnitFor(m.meter);
-    out.push({ pos: c.pos, text: '', unit: u.unit, dotted: u.dotted, perMinute: Math.round(c.bpm / u.quarterFactor), quarterBpm: c.bpm });
+    out.push({
+      pos: c.pos,
+      text: '',
+      unit: u.unit,
+      dotted: u.dotted,
+      perMinute: Math.round(c.bpm / u.quarterFactor),
+      quarterBpm: c.bpm,
+    });
   }
   return out;
 }

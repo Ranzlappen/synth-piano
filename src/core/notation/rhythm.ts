@@ -28,7 +28,9 @@ const BASE: { type: NoteType; duration: number }[] = [
 /** Straight note values (with up to one dot), longest first. */
 const STRAIGHT_VALUES: NoteValue[] = BASE.flatMap((b) => {
   const plain = { type: b.type, dots: 0, duration: b.duration, triplet: false };
-  return b.duration >= 6 ? [{ type: b.type, dots: 1, duration: (b.duration * 3) / 2, triplet: false }, plain] : [plain];
+  return b.duration >= 6
+    ? [{ type: b.type, dots: 1, duration: (b.duration * 3) / 2, triplet: false }, plain]
+    : [plain];
 }).sort((a, b) => b.duration - a.duration);
 
 export interface Meter {
@@ -124,7 +126,10 @@ export function decompose(
         pos = segEnd;
         continue;
       }
-      pieces.push({ start: pos, value: { type: d === 32 ? 'quarter' : 'eighth', dots: 0, duration: d, triplet: true } });
+      pieces.push({
+        start: pos,
+        value: { type: d === 32 ? 'quarter' : 'eighth', dots: 0, duration: d, triplet: true },
+      });
       pos += d;
       continue;
     }
@@ -138,7 +143,8 @@ export function decompose(
     }
     const candidates = STRAIGHT_VALUES.filter((v) => {
       if (pos + v.duration > limit) return false;
-      if (isRest && v.dots > 0 && !(isCompound(m) && v.duration === beatLength(m) && pos % v.duration === 0)) return false;
+      if (isRest && v.dots > 0 && !(isCompound(m) && v.duration === beatLength(m) && pos % v.duration === 0))
+        return false;
       if (crossesForbiddenBoundary(pos, pos + v.duration, m, 3)) return false;
       // Dotted values must start on a position aligned to their undotted base.
       if (v.dots > 0 && pos % ((v.duration * 2) / 3 / 2) !== 0) return false;
@@ -147,8 +153,12 @@ export function decompose(
     const choice = candidates[0];
     if (!choice) {
       const len = limit - pos;
-      const fallback = STRAIGHT_VALUES.find((v) => v.duration <= len) ?? STRAIGHT_VALUES[STRAIGHT_VALUES.length - 1];
-      pieces.push({ start: pos, value: { ...fallback, duration: Math.max(1, Math.min(len, fallback.duration)) } });
+      const fallback =
+        STRAIGHT_VALUES.find((v) => v.duration <= len) ?? STRAIGHT_VALUES[STRAIGHT_VALUES.length - 1];
+      pieces.push({
+        start: pos,
+        value: { ...fallback, duration: Math.max(1, Math.min(len, fallback.duration)) },
+      });
       pos += Math.max(1, Math.min(len, fallback.duration));
       continue;
     }

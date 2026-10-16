@@ -166,7 +166,9 @@ export function createNote(partial: Omit<Note, 'id' | 'releaseVelocity'> & Parti
   return { id: newId('n'), releaseVelocity: 64, ...partial };
 }
 
-export function createControl(partial: Omit<ControlEvent, 'id' | 'controller'> & Partial<ControlEvent>): ControlEvent {
+export function createControl(
+  partial: Omit<ControlEvent, 'id' | 'controller'> & Partial<ControlEvent>,
+): ControlEvent {
   return { id: newId('c'), controller: 0, ...partial };
 }
 

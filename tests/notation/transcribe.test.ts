@@ -6,13 +6,20 @@ import { toMusicXml } from '@core/notation/musicxml';
 import { pianoPerformance } from '../fixtures/performance';
 
 const q = PPQ;
-const opts = (o: Partial<SheetExportOptions> = {}): SheetExportOptions => ({ ...DEFAULT_SHEET_OPTIONS, ...o });
+const opts = (o: Partial<SheetExportOptions> = {}): SheetExportOptions => ({
+  ...DEFAULT_SHEET_OPTIONS,
+  ...o,
+});
 
 function simpleProject(notes: [number, number, number, number?][], extra: Partial<Project> = {}): Project {
   return createProject({
     tracks: [
       createTrack(
-        { notes: notes.map(([pitch, tick, duration, velocity]) => createNote({ pitch, tick, duration, velocity: velocity ?? 80 })) },
+        {
+          notes: notes.map(([pitch, tick, duration, velocity]) =>
+            createNote({ pitch, tick, duration, velocity: velocity ?? 80 }),
+          ),
+        },
         0,
       ),
     ],
@@ -92,7 +99,12 @@ describe('transcribe', () => {
     const s = transcribe(p, opts({ staffMode: 'treble' }));
     const voices = s.parts[0].measures[0].voices;
     expect(voices).toHaveLength(2);
-    expect(voices.find((v) => v.stem === 'up')!.events.map((e) => e.value.type)).toEqual(['quarter', 'quarter', 'quarter', 'quarter']);
+    expect(voices.find((v) => v.stem === 'up')!.events.map((e) => e.value.type)).toEqual([
+      'quarter',
+      'quarter',
+      'quarter',
+      'quarter',
+    ]);
     expect(voices.find((v) => v.stem === 'down')!.events.map((e) => e.value.type)).toEqual(['whole']);
   });
 
@@ -185,7 +197,10 @@ describe('transcribe', () => {
   it('produces well-formed MusicXML', () => {
     const p = pianoPerformance();
     p.tracks[0].controls.push(createControl({ tick: 0, kind: 'cc', controller: 7, value: 100 }));
-    const xml = toMusicXml(transcribe(p, opts({ title: 'A & B <test>' })), { software: 'test', measureNumbers: 'system' });
+    const xml = toMusicXml(transcribe(p, opts({ title: 'A & B <test>' })), {
+      software: 'test',
+      measureNumbers: 'system',
+    });
     expect(xml).toContain('<work-title>A &amp; B &lt;test&gt;</work-title>');
     for (const m of xml.split('<measure ').slice(1)) expect(m).toMatch(/<\/measure>/);
     expect(xml.match(/<measure /g)!.length).toBeGreaterThan(4);

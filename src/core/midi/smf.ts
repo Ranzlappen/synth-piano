@@ -84,7 +84,7 @@ export function parseSmf(input: ArrayBuffer | Uint8Array): SmfFile {
     r.pos = 12;
     while (!r.eof) {
       const id = r.ascii(4);
-      const len = r.u32() ;
+      const len = r.u32();
       if (id === 'data') return parseSmf(buf.slice(r.pos, r.pos + len));
       r.pos += len + (len & 1);
     }

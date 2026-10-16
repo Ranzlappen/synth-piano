@@ -53,8 +53,10 @@ export function buildVerovioOptions(o: SheetExportOptions): Record<string, unkno
 export function buildPageHeadersMei(o: SheetExportOptions): string {
   const e = escapeXml;
   const first: string[] = [];
-  if (o.title) first.push(`<rend halign="center" valign="top"><rend fontsize="xx-large">${e(o.title)}</rend></rend>`);
-  if (o.subtitle) first.push(`<rend halign="center" valign="top"><rend fontsize="large">${e(o.subtitle)}</rend></rend>`);
+  if (o.title)
+    first.push(`<rend halign="center" valign="top"><rend fontsize="xx-large">${e(o.title)}</rend></rend>`);
+  if (o.subtitle)
+    first.push(`<rend halign="center" valign="top"><rend fontsize="large">${e(o.subtitle)}</rend></rend>`);
   if (o.arranger)
     first.push(`<rend halign="left" valign="bottom"><rend fontstyle="italic">${e(o.arranger)}</rend></rend>`);
   if (o.composer) first.push(`<rend halign="right" valign="bottom">${e(o.composer)}</rend>`);
@@ -69,13 +71,18 @@ export function buildPageHeadersMei(o: SheetExportOptions): string {
       ? `<rend halign="left" valign="top"><rend fontsize="small" fontstyle="italic">${e(o.title)}</rend></rend>`
       : '';
   out.push(`<pgHead func="all">${running}</pgHead>`);
-  const pageNo = o.pageNumbers ? '<rend halign="center" valign="bottom"><num label="page">#</num></rend>' : '';
+  const pageNo = o.pageNumbers
+    ? '<rend halign="center" valign="bottom"><num label="page">#</num></rend>'
+    : '';
   out.push(`<pgFoot func="all">${pageNo}</pgFoot>`);
   return out.join('');
 }
 
 /** Replaces any page headers in an MEI document with the given ones. */
 export function injectPageHeaders(mei: string, headers: string): string {
-  const cleaned = mei.replace(/<pgHead[\s\S]*?<\/pgHead>/g, '').replace(/<pgFoot[\s\S]*?<\/pgFoot>/g, '').replace(/<pg(Head|Foot)[^>]*\/>/g, '');
+  const cleaned = mei
+    .replace(/<pgHead[\s\S]*?<\/pgHead>/g, '')
+    .replace(/<pgFoot[\s\S]*?<\/pgFoot>/g, '')
+    .replace(/<pg(Head|Foot)[^>]*\/>/g, '');
   return cleaned.replace(/(<scoreDef\b[^>]*>)/, `$1${headers}`);
 }

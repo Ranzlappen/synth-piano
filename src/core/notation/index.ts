@@ -21,7 +21,11 @@ export interface SheetMusicJob {
 }
 
 /** Everything the engraver needs for a project and a set of export options. */
-export function buildSheetMusic(project: Project, options: SheetExportOptions, software = 'Synth Piano'): SheetMusicJob {
+export function buildSheetMusic(
+  project: Project,
+  options: SheetExportOptions,
+  software = 'Synth Piano',
+): SheetMusicJob {
   const score = transcribe(project, options);
   const programs: Record<string, number> = {};
   for (const p of score.parts) {

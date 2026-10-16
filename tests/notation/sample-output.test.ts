@@ -7,6 +7,8 @@ import createVerovioModule from 'verovio/wasm';
 import { VerovioToolkit } from 'verovio/esm';
 import { buildSheetMusic, injectPageHeaders, resolveSheetOptions } from '@core/notation';
 import { pianoPerformance } from '../fixtures/performance';
+import { projectToSmf } from '@core/midi/convert';
+import { writeSmf } from '@core/midi/smf';
 
 const out = process.env.SAMPLE_OUT;
 
@@ -19,5 +21,6 @@ it.skipIf(!out)('writes sample engraving', async () => {
   tk.loadData(job.musicxml);
   tk.loadData(injectPageHeaders(tk.getMEI(), job.pageHeaders));
   fs.writeFileSync(`${out}.musicxml`, job.musicxml);
+  fs.writeFileSync(`${out}.mid`, writeSmf(projectToSmf(project)));
   for (let i = 1; i <= tk.getPageCount(); i++) fs.writeFileSync(`${out}-${i}.svg`, tk.renderToSVG(i));
 });

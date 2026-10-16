@@ -112,13 +112,24 @@ export class MeterMap {
   ) {
     const sorted = [...sigs].sort((a, b) => a.tick - b.tick);
     if (sorted.length === 0 || sorted[0].tick > 0)
-      sorted.unshift({ tick: 0, numerator: sorted[0]?.numerator ?? 4, denominator: sorted[0]?.denominator ?? 4 });
+      sorted.unshift({
+        tick: 0,
+        numerator: sorted[0]?.numerator ?? 4,
+        denominator: sorted[0]?.denominator ?? 4,
+      });
     const segs: MeterSegment[] = [];
     for (const s of sorted) {
       const ticksPerBeat = (ppq * 4) / s.denominator;
       const ticksPerBar = ticksPerBeat * s.numerator;
       if (segs.length === 0) {
-        segs.push({ tick: 0, bar: 0, numerator: s.numerator, denominator: s.denominator, ticksPerBeat, ticksPerBar });
+        segs.push({
+          tick: 0,
+          bar: 0,
+          numerator: s.numerator,
+          denominator: s.denominator,
+          ticksPerBeat,
+          ticksPerBar,
+        });
         continue;
       }
       const prev = segs[segs.length - 1];
@@ -195,7 +206,11 @@ export class MeterMap {
     const barOffset = Math.floor((tick - seg.tick) / seg.ticksPerBar);
     const inBar = tick - seg.tick - barOffset * seg.ticksPerBar;
     const beat = Math.floor(inBar / seg.ticksPerBeat);
-    return { bar: seg.bar + barOffset + 1, beat: beat + 1, tick: Math.round(inBar - beat * seg.ticksPerBeat) };
+    return {
+      bar: seg.bar + barOffset + 1,
+      beat: beat + 1,
+      tick: Math.round(inBar - beat * seg.ticksPerBeat),
+    };
   }
 
   tickOfPosition(pos: MusicalPosition): number {

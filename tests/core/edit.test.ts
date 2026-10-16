@@ -78,7 +78,10 @@ describe('editing operations', () => {
   });
 
   it('copies and pastes relative to the earliest event', () => {
-    const clip = copyToClipboard([n(60, 1000, 100)], [createControl({ tick: 900, kind: 'cc', controller: 64, value: 127 })]);
+    const clip = copyToClipboard(
+      [n(60, 1000, 100)],
+      [createControl({ tick: 900, kind: 'cc', controller: 64, value: 127 })],
+    );
     expect(clip.notes[0].tick).toBe(100);
     const pasted = pasteFromClipboard(clip, 5000);
     expect(pasted.notes[0].tick).toBe(5100);
@@ -86,7 +89,9 @@ describe('editing operations', () => {
   });
 
   it('thins redundant controller values', () => {
-    const c = [0, 10, 20, 30].map((tick, i) => createControl({ tick, kind: 'cc', controller: 11, value: i < 3 ? 50 : 60 }));
+    const c = [0, 10, 20, 30].map((tick, i) =>
+      createControl({ tick, kind: 'cc', controller: 11, value: i < 3 ? 50 : 60 }),
+    );
     expect(thinControls(c).map((x) => x.tick)).toEqual([0, 30]);
   });
 });

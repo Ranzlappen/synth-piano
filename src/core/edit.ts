@@ -74,7 +74,9 @@ export function moveNotes(notes: readonly Note[], ids: IdSet, dTick: number, dPi
   if (minTick === Infinity) return [...notes];
   const dt = Math.max(dTick, -minTick);
   const dp = clamp(dPitch, -minPitch, 127 - maxPitch);
-  return sortNotes(notes.map((n) => (isSel(ids, n.id) ? { ...n, tick: n.tick + dt, pitch: n.pitch + dp } : n)));
+  return sortNotes(
+    notes.map((n) => (isSel(ids, n.id) ? { ...n, tick: n.tick + dt, pitch: n.pitch + dp } : n)),
+  );
 }
 
 export function transposeNotes(notes: readonly Note[], ids: IdSet, semitones: number): Note[] {
@@ -82,10 +84,16 @@ export function transposeNotes(notes: readonly Note[], ids: IdSet, semitones: nu
 }
 
 export function resizeNotes(notes: readonly Note[], ids: IdSet, dDuration: number, minDuration = 1): Note[] {
-  return notes.map((n) => (isSel(ids, n.id) ? { ...n, duration: Math.max(minDuration, n.duration + dDuration) } : n));
+  return notes.map((n) =>
+    isSel(ids, n.id) ? { ...n, duration: Math.max(minDuration, n.duration + dDuration) } : n,
+  );
 }
 
-export function setNoteVelocity(notes: readonly Note[], ids: IdSet, fn: (n: Note, index: number) => number): Note[] {
+export function setNoteVelocity(
+  notes: readonly Note[],
+  ids: IdSet,
+  fn: (n: Note, index: number) => number,
+): Note[] {
   let i = 0;
   return notes.map((n) => (isSel(ids, n.id) ? { ...n, velocity: clamp(Math.round(fn(n, i++)), 1, 127) } : n));
 }
@@ -96,7 +104,9 @@ export function velocityRamp(notes: readonly Note[], ids: IdSet, from: number, t
   if (sel.length === 0) return [...notes];
   const t0 = Math.min(...sel.map((n) => n.tick));
   const t1 = Math.max(...sel.map((n) => n.tick));
-  return setNoteVelocity(notes, ids, (n) => (t1 === t0 ? to : from + ((n.tick - t0) / (t1 - t0)) * (to - from)));
+  return setNoteVelocity(notes, ids, (n) =>
+    t1 === t0 ? to : from + ((n.tick - t0) / (t1 - t0)) * (to - from),
+  );
 }
 
 export function deleteNotes(notes: readonly Note[], ids: IdSet): Note[] {
@@ -200,13 +210,7 @@ export function fixOverlaps(notes: readonly Note[]): Note[] {
   return out;
 }
 
-export function notesInRect(
-  notes: readonly Note[],
-  t0: number,
-  t1: number,
-  p0: number,
-  p1: number,
-): Note[] {
+export function notesInRect(notes: readonly Note[], t0: number, t1: number, p0: number, p1: number): Note[] {
   const [ta, tb] = t0 < t1 ? [t0, t1] : [t1, t0];
   const [pa, pb] = p0 < p1 ? [p0, p1] : [p1, p0];
   return notes.filter((n) => n.pitch >= pa && n.pitch <= pb && n.tick < tb && n.tick + n.duration > ta);
@@ -229,7 +233,9 @@ export function clearControlRange(
 }
 
 export function moveControls(controls: readonly ControlEvent[], ids: IdSet, dTick: number): ControlEvent[] {
-  return sortControls(controls.map((c) => (isSel(ids, c.id) ? { ...c, tick: Math.max(0, c.tick + dTick) } : c)));
+  return sortControls(
+    controls.map((c) => (isSel(ids, c.id) ? { ...c, tick: Math.max(0, c.tick + dTick) } : c)),
+  );
 }
 
 /** Removes consecutive duplicate values per controller lane to keep recordings compact. */
@@ -281,7 +287,10 @@ export function copyToClipboard(notes: readonly Note[], controls: readonly Contr
   };
 }
 
-export function pasteFromClipboard(clip: ClipboardData, at: number): { notes: Note[]; controls: ControlEvent[] } {
+export function pasteFromClipboard(
+  clip: ClipboardData,
+  at: number,
+): { notes: Note[]; controls: ControlEvent[] } {
   return {
     notes: clip.notes.map((n) => ({ ...n, id: newId('n'), tick: n.tick + at })),
     controls: clip.controls.map((c) => ({ ...c, id: newId('c'), tick: c.tick + at })),

@@ -95,9 +95,7 @@ export function encodeMidi(msg: MidiMessage): number[] {
   }
 }
 
-export function isChannelMessage(
-  msg: MidiMessage,
-): msg is Extract<MidiMessage, { channel: number }> {
+export function isChannelMessage(msg: MidiMessage): msg is Extract<MidiMessage, { channel: number }> {
   return 'channel' in msg;
 }
 

@@ -4,7 +4,15 @@
 // breath, pitch bend, channel and polyphonic aftertouch and program changes.
 
 import { thinControls } from './edit';
-import { createControl, createNote, sortControls, sortNotes, type ControlEvent, type Note, type Track } from './model';
+import {
+  createControl,
+  createNote,
+  sortControls,
+  sortNotes,
+  type ControlEvent,
+  type Note,
+  type Track,
+} from './model';
 import { CC } from './music';
 import type { MidiMessage } from './midi/messages';
 
@@ -75,7 +83,8 @@ export class RecordingBuffer {
         if (this.closeNote(msg.note, tick, msg.velocity)) touch();
         break;
       case 'cc': {
-        const isPedal = msg.controller === CC.SUSTAIN || msg.controller === CC.SOSTENUTO || msg.controller === CC.SOFT;
+        const isPedal =
+          msg.controller === CC.SUSTAIN || msg.controller === CC.SOSTENUTO || msg.controller === CC.SOFT;
         if (isPedal ? !this.filter.pedals : !this.filter.controllers) return;
         // Channel mode messages are not musical data.
         if (msg.controller >= 120) return;
@@ -95,7 +104,9 @@ export class RecordingBuffer {
         break;
       case 'polyPressure':
         if (!this.filter.aftertouch) return;
-        this.controls.push(createControl({ tick, kind: 'polyPressure', controller: msg.note, value: msg.value }));
+        this.controls.push(
+          createControl({ tick, kind: 'polyPressure', controller: msg.note, value: msg.value }),
+        );
         touch();
         break;
       case 'programChange':
@@ -227,7 +238,12 @@ export class CaptureBuffer {
    * Converts the buffered performance (since the last pause longer than `gapSeconds`)
    * into a take positioned at `atTick`, using `secondsToTicks` for the time conversion.
    */
-  capture(atTick: number, ticksPerSecond: number, gapSeconds = 8, filter = DEFAULT_RECORD_FILTER): RecordedTake | null {
+  capture(
+    atTick: number,
+    ticksPerSecond: number,
+    gapSeconds = 8,
+    filter = DEFAULT_RECORD_FILTER,
+  ): RecordedTake | null {
     if (this.events.length === 0) return null;
     let startIndex = 0;
     for (let i = this.events.length - 1; i > 0; i--) {

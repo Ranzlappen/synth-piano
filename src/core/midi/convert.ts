@@ -34,10 +34,21 @@ import {
 /** Converts a project into a format-1 Standard MIDI File structure. */
 export function projectToSmf(project: Project, options: { tracks?: Track[] } = {}): SmfFile {
   const conductor: SmfEvent[] = [];
-  conductor.push({ tick: 0, type: 'meta', metaType: META.TRACK_NAME, data: textBytes(project.meta.title || 'Untitled') });
+  conductor.push({
+    tick: 0,
+    type: 'meta',
+    metaType: META.TRACK_NAME,
+    data: textBytes(project.meta.title || 'Untitled'),
+  });
   if (project.meta.copyright)
-    conductor.push({ tick: 0, type: 'meta', metaType: META.COPYRIGHT, data: textBytes(project.meta.copyright) });
-  for (const t of project.tempos) conductor.push({ tick: t.tick, type: 'meta', metaType: META.TEMPO, data: tempoBytes(t.bpm) });
+    conductor.push({
+      tick: 0,
+      type: 'meta',
+      metaType: META.COPYRIGHT,
+      data: textBytes(project.meta.copyright),
+    });
+  for (const t of project.tempos)
+    conductor.push({ tick: t.tick, type: 'meta', metaType: META.TEMPO, data: tempoBytes(t.bpm) });
   for (const ts of project.timeSignatures)
     conductor.push({
       tick: ts.tick,
@@ -52,7 +63,8 @@ export function projectToSmf(project: Project, options: { tracks?: Track[] } = {
       metaType: META.KEY_SIGNATURE,
       data: keySignatureBytes(ks.fifths, ks.mode === 'minor'),
     });
-  for (const m of project.markers) conductor.push({ tick: m.tick, type: 'meta', metaType: META.MARKER, data: textBytes(m.name) });
+  for (const m of project.markers)
+    conductor.push({ tick: m.tick, type: 'meta', metaType: META.MARKER, data: textBytes(m.name) });
 
   const tracks: SmfEvent[][] = [conductor];
   for (const track of options.tracks ?? project.tracks) {
@@ -65,7 +77,13 @@ export function projectToSmf(project: Project, options: { tracks?: Track[] } = {
     ];
     for (const n of track.notes) {
       ev.push({ tick: n.tick, type: 'noteOn', channel: ch, note: n.pitch, velocity: n.velocity });
-      ev.push({ tick: n.tick + n.duration, type: 'noteOff', channel: ch, note: n.pitch, velocity: n.releaseVelocity });
+      ev.push({
+        tick: n.tick + n.duration,
+        type: 'noteOff',
+        channel: ch,
+        note: n.pitch,
+        velocity: n.releaseVelocity,
+      });
     }
     for (const c of track.controls) ev.push(controlToSmf(c, ch));
     tracks.push(ev);
@@ -112,7 +130,13 @@ export function smfToProject(smf: SmfFile, fileName = 'Imported'): Project {
     // channel -> partial track data
     const perChannel = new Map<
       number,
-      { notes: Note[]; controls: ControlEvent[]; program: number | null; volume: number | null; pan: number | null }
+      {
+        notes: Note[];
+        controls: ControlEvent[];
+        program: number | null;
+        volume: number | null;
+        pan: number | null;
+      }
     >();
     const channelData = (ch: number) => {
       let d = perChannel.get(ch);
@@ -194,7 +218,9 @@ export function smfToProject(smf: SmfFile, fileName = 'Imported'): Project {
           channelData(e.channel).controls.push(createControl({ tick, kind: 'pitchBend', value: e.value }));
           break;
         case 'channelPressure':
-          channelData(e.channel).controls.push(createControl({ tick, kind: 'channelPressure', value: e.value }));
+          channelData(e.channel).controls.push(
+            createControl({ tick, kind: 'channelPressure', value: e.value }),
+          );
           break;
         case 'polyPressure':
           channelData(e.channel).controls.push(
@@ -208,7 +234,12 @@ export function smfToProject(smf: SmfFile, fileName = 'Imported'): Project {
     for (const [key, list] of open) {
       for (const start of list) {
         channelData(Math.floor(key / 128)).notes.push(
-          createNote({ pitch: key % 128, tick: start.tick, duration: Math.max(1, endTick - start.tick), velocity: start.velocity }),
+          createNote({
+            pitch: key % 128,
+            tick: start.tick,
+            duration: Math.max(1, endTick - start.tick),
+            velocity: start.velocity,
+          }),
         );
       }
     }
@@ -247,7 +278,9 @@ export function smfToProject(smf: SmfFile, fileName = 'Imported'): Project {
 
   const project = createProject({
     tempos: tempos.length ? dedupe(tempos) : [{ tick: 0, bpm: 120 }],
-    timeSignatures: timeSignatures.length ? dedupe(timeSignatures) : [{ tick: 0, numerator: 4, denominator: 4 }],
+    timeSignatures: timeSignatures.length
+      ? dedupe(timeSignatures)
+      : [{ tick: 0, numerator: 4, denominator: 4 }],
     keySignatures: keySignatures.length ? dedupe(keySignatures) : [{ tick: 0, fifths: 0, mode: 'major' }],
     markers,
     tracks,

@@ -208,7 +208,10 @@ export const DEFAULT_SHEET_OPTIONS: SheetExportOptions = {
 };
 
 /** Options for a project: defaults, then the project's metadata, then saved settings. */
-export function resolveSheetOptions(project: Project, saved?: Partial<SheetExportOptions> | null): SheetExportOptions {
+export function resolveSheetOptions(
+  project: Project,
+  saved?: Partial<SheetExportOptions> | null,
+): SheetExportOptions {
   const firstTrack = project.tracks.find((t) => t.notes.length > 0) ?? project.tracks[0];
   const base: SheetExportOptions = {
     ...DEFAULT_SHEET_OPTIONS,
@@ -271,7 +274,11 @@ export function sanitizeSheetOptions(o: SheetExportOptions): SheetExportOptions 
     systemsPerPage: Math.round(n(o.systemsPerPage, 0, 20, 0)),
     measureNumbers: pick(o.measureNumbers, ['none', 'system', 'every', 'five'], d.measureNumbers),
     spacing: pick(o.spacing, ['compact', 'normal', 'spacious'], d.spacing),
-    font: pick(o.font, ENGRAVING_FONTS.map((f) => f.id), d.font),
+    font: pick(
+      o.font,
+      ENGRAVING_FONTS.map((f) => f.id),
+      d.font,
+    ),
   };
 }
 

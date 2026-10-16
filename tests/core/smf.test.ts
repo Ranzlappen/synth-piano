@@ -71,14 +71,24 @@ describe('project <-> SMF conversion', () => {
           },
           0,
         ),
-        createTrack({ name: 'Bass', channel: 1, program: 33, notes: [createNote({ pitch: 36, tick: 0, duration: 1920, velocity: 70 })] }, 1),
+        createTrack(
+          {
+            name: 'Bass',
+            channel: 1,
+            program: 33,
+            notes: [createNote({ pitch: 36, tick: 0, duration: 1920, velocity: 70 })],
+          },
+          1,
+        ),
       ],
     });
     const back = smfToProject(parseSmf(writeSmf(projectToSmf(project))), 'test.mid');
     expect(back.tempos).toEqual(project.tempos);
     expect(back.timeSignatures).toEqual(project.timeSignatures);
     expect(back.tracks).toHaveLength(2);
-    expect(back.tracks[0].notes.map((n) => [n.pitch, n.tick, n.duration, n.velocity, n.releaseVelocity])).toEqual([
+    expect(
+      back.tracks[0].notes.map((n) => [n.pitch, n.tick, n.duration, n.velocity, n.releaseVelocity]),
+    ).toEqual([
       [60, 0, 960, 90, 30],
       [64, 960, 480, 50, 64],
     ]);

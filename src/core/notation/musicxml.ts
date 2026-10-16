@@ -59,8 +59,12 @@ export function toMusicXml(score: NScore, opts: MusicXmlOptions): string {
   score.parts.forEach((p, i) => {
     const program = opts.programs?.[p.id] ?? 0;
     w(`    <score-part id="P${i + 1}">`);
-    w(`      <part-name${score.showInstrumentNames ? '' : ' print-object="no"'}>${escapeXml(p.name)}</part-name>`);
-    w(`      <score-instrument id="P${i + 1}-I1"><instrument-name>${escapeXml(GM_PROGRAMS[program] ?? p.name)}</instrument-name></score-instrument>`);
+    w(
+      `      <part-name${score.showInstrumentNames ? '' : ' print-object="no"'}>${escapeXml(p.name)}</part-name>`,
+    );
+    w(
+      `      <score-instrument id="P${i + 1}-I1"><instrument-name>${escapeXml(GM_PROGRAMS[program] ?? p.name)}</instrument-name></score-instrument>`,
+    );
     // Skip channel 10 (drums) when numbering channels.
     const channel = ((i >= 9 ? i + 1 : i) % 16) + 1;
     w(
@@ -90,13 +94,18 @@ function writeMeasure(
   const pm = part.measures[mi];
   const last = mi === score.measures.length - 1;
   w(`    <measure number="${m.implicit ? 0 : m.number}"${m.implicit ? ' implicit="yes"' : ''}>`);
-  if (mi === 0 && opts.measureNumbers === 'none') w('      <print><measure-numbering>none</measure-numbering></print>');
+  if (mi === 0 && opts.measureNumbers === 'none')
+    w('      <print><measure-numbering>none</measure-numbering></print>');
   else if (m.newSystem) w('      <print new-system="yes"/>');
 
   const attrs: string[] = [];
   if (mi === 0) attrs.push(`<divisions>${score.divisions}</divisions>`);
-  if (m.showKey) attrs.push(`<key><fifths>${m.keyFifths}</fifths><mode>${m.keyMinor ? 'minor' : 'major'}</mode></key>`);
-  if (m.showMeter) attrs.push(`<time><beats>${m.meter.numerator}</beats><beat-type>${m.meter.denominator}</beat-type></time>`);
+  if (m.showKey)
+    attrs.push(`<key><fifths>${m.keyFifths}</fifths><mode>${m.keyMinor ? 'minor' : 'major'}</mode></key>`);
+  if (m.showMeter)
+    attrs.push(
+      `<time><beats>${m.meter.numerator}</beats><beat-type>${m.meter.denominator}</beat-type></time>`,
+    );
   if (mi === 0) {
     if (part.staves > 1) attrs.push(`<staves>${part.staves}</staves>`);
     part.clefs.forEach((c, i) =>
@@ -128,7 +137,9 @@ function writeEvent(w: (s: string) => void, e: NEvent, v: NVoice, staves: number
     let s = `<voice>${v.voice}</voice>`;
     if (!e.measureRest) s += `<type>${e.value.type}</type>`;
     for (let i = 0; i < e.value.dots; i++) s += '<dot/>';
-    if (e.value.triplet) s += '<time-modification><actual-notes>3</actual-notes><normal-notes>2</normal-notes></time-modification>';
+    if (e.value.triplet)
+      s +=
+        '<time-modification><actual-notes>3</actual-notes><normal-notes>2</normal-notes></time-modification>';
     if (!e.rest && v.stem) s += `<stem>${v.stem}</stem>`;
     if (staves > 1) s += `<staff>${v.staff}</staff>`;
     if (isFirst && e.beam) s += `<beam number="1">${e.beam}</beam>`;
@@ -137,21 +148,28 @@ function writeEvent(w: (s: string) => void, e: NEvent, v: NVoice, staves: number
     if (tieStart) notations.push('<tied type="start"/>');
     if (isFirst && e.tuplet) {
       notations.push(
-        e.tuplet === 'start' ? `<tuplet type="start" bracket="${e.tupletBracket ? 'yes' : 'no'}"/>` : '<tuplet type="stop"/>',
+        e.tuplet === 'start'
+          ? `<tuplet type="start" bracket="${e.tupletBracket ? 'yes' : 'no'}"/>`
+          : '<tuplet type="stop"/>',
       );
     }
-    if (isFirst && e.articulations.length) notations.push(`<articulations>${e.articulations.map((a) => `<${a}/>`).join('')}</articulations>`);
+    if (isFirst && e.articulations.length)
+      notations.push(`<articulations>${e.articulations.map((a) => `<${a}/>`).join('')}</articulations>`);
     if (notations.length) s += `<notations>${notations.join('')}</notations>`;
     return s;
   };
   if (e.rest) {
-    w(`      <note>${e.measureRest ? '<rest measure="yes"/>' : '<rest/>'}${common()}${tail(true, false, false)}</note>`);
+    w(
+      `      <note>${e.measureRest ? '<rest measure="yes"/>' : '<rest/>'}${common()}${tail(true, false, false)}</note>`,
+    );
     return;
   }
   e.pitches.forEach((p, i) => {
     const pitch = `<pitch><step>${p.step}</step>${p.alter ? `<alter>${p.alter}</alter>` : ''}<octave>${p.octave}</octave></pitch>`;
     const ties = `${p.tieStop ? '<tie type="stop"/>' : ''}${p.tieStart ? '<tie type="start"/>' : ''}`;
-    w(`      <note>${i > 0 ? '<chord/>' : ''}${pitch}${common()}${ties}${tail(i === 0, p.tieStart, p.tieStop)}</note>`);
+    w(
+      `      <note>${i > 0 ? '<chord/>' : ''}${pitch}${common()}${ties}${tail(i === 0, p.tieStart, p.tieStop)}</note>`,
+    );
   });
 }
 
@@ -171,7 +189,9 @@ function direction(d: NDirection, staves: number): string {
     case 'words':
       return `<direction placement="${d.placement}"><direction-type><words${d.italic ? ' font-style="italic"' : ''}>${escapeXml(d.text)}</words></direction-type>${offset}${staff}</direction>`;
     case 'tempo': {
-      const words = d.text ? `<direction-type><words font-weight="bold">${escapeXml(d.text)}&#160;</words></direction-type>` : '';
+      const words = d.text
+        ? `<direction-type><words font-weight="bold">${escapeXml(d.text)}&#160;</words></direction-type>`
+        : '';
       const metronome = d.showMetronome
         ? `<direction-type><metronome parentheses="no"><beat-unit>${d.unit}</beat-unit>${d.dotted ? '<beat-unit-dot/>' : ''}<per-minute>${d.perMinute}</per-minute></metronome></direction-type>`
         : '';

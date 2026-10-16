@@ -58,7 +58,10 @@ export interface TempoEstimate {
  * Estimates the tempo of a freely played performance by fitting a beat grid to the note
  * onsets. Returns the best tempo between 40 and 220 BPM and the phase of the grid.
  */
-export function estimateTempo(onsetsSec: readonly number[], weights?: readonly number[]): TempoEstimate | null {
+export function estimateTempo(
+  onsetsSec: readonly number[],
+  weights?: readonly number[],
+): TempoEstimate | null {
   if (onsetsSec.length < 4) return null;
   // Merge near-simultaneous onsets (chords) into single weighted events.
   const order = onsetsSec.map((t, i) => [t, weights?.[i] ?? 1] as const).sort((a, b) => a[0] - b[0]);

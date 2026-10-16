@@ -27,7 +27,8 @@ const num = (v: unknown, fallback: number, lo = -Infinity, hi = Infinity): numbe
   typeof v === 'number' && Number.isFinite(v) ? clamp(v, lo, hi) : fallback;
 const str = (v: unknown, fallback = ''): string => (typeof v === 'string' ? v : fallback);
 const bool = (v: unknown, fallback = false): boolean => (typeof v === 'boolean' ? v : fallback);
-const arr = (v: unknown): Json[] => (Array.isArray(v) ? (v.filter((x) => x && typeof x === 'object') as Json[]) : []);
+const arr = (v: unknown): Json[] =>
+  Array.isArray(v) ? (v.filter((x) => x && typeof x === 'object') as Json[]) : [];
 
 const CONTROL_KINDS: ControlKind[] = ['cc', 'pitchBend', 'channelPressure', 'polyPressure', 'programChange'];
 
@@ -43,7 +44,8 @@ export function parseProject(text: string): Project {
     throw new ProjectFormatError('The file is not a Synth Piano project.');
   }
   const version = num(raw.version, 1);
-  if (version > 1) throw new ProjectFormatError(`Project version ${version} is newer than this app supports.`);
+  if (version > 1)
+    throw new ProjectFormatError(`Project version ${version} is newer than this app supports.`);
 
   const ppq = num(raw.ppq, PPQ, 24, 15360);
   const scale = PPQ / ppq;
@@ -71,7 +73,11 @@ export function parseProject(text: string): Project {
       fifths: Math.round(num(e.fifths, 0, -7, 7)),
       mode: e.mode === 'minor' ? ('minor' as const) : ('major' as const),
     })),
-    markers: arr(raw.markers).map((e) => ({ id: str(e.id) || newId('m'), tick: t(e.tick), name: str(e.name, 'Marker') })),
+    markers: arr(raw.markers).map((e) => ({
+      id: str(e.id) || newId('m'),
+      tick: t(e.tick),
+      name: str(e.name, 'Marker'),
+    })),
     tracks: arr(raw.tracks).map((e, i) => parseTrack(e, i, t)),
     loop: (() => {
       const l = (raw.loop ?? {}) as Json;
@@ -79,9 +85,11 @@ export function parseProject(text: string): Project {
       const end = Math.max(start + 1, t(l.end ?? PPQ * 16));
       return { enabled: bool(l.enabled), start, end };
     })(),
-    sheetExport: raw.sheetExport && typeof raw.sheetExport === 'object' ? (raw.sheetExport as Json) : undefined,
+    sheetExport:
+      raw.sheetExport && typeof raw.sheetExport === 'object' ? (raw.sheetExport as Json) : undefined,
   };
-  if (project.tempos.length === 0 || project.tempos[0].tick !== 0) project.tempos.unshift({ tick: 0, bpm: 120 });
+  if (project.tempos.length === 0 || project.tempos[0].tick !== 0)
+    project.tempos.unshift({ tick: 0, bpm: 120 });
   if (project.timeSignatures.length === 0 || project.timeSignatures[0].tick !== 0)
     project.timeSignatures.unshift({ tick: 0, numerator: 4, denominator: 4 });
   if (project.keySignatures.length === 0) project.keySignatures.push({ tick: 0, fifths: 0, mode: 'major' });
@@ -98,15 +106,14 @@ function parseTrack(e: Json, index: number, t: (v: unknown) => number): Track {
     seen.add(s);
     return s;
   };
-  const notes: Note[] = arr(e.notes)
-    .map((n) => ({
-      id: uniqueId(n.id, 'n'),
-      pitch: Math.round(num(n.pitch, 60, 0, 127)),
-      tick: t(n.tick),
-      duration: Math.max(1, t(n.duration)),
-      velocity: Math.round(num(n.velocity, 100, 1, 127)),
-      releaseVelocity: Math.round(num(n.releaseVelocity, 64, 0, 127)),
-    }));
+  const notes: Note[] = arr(e.notes).map((n) => ({
+    id: uniqueId(n.id, 'n'),
+    pitch: Math.round(num(n.pitch, 60, 0, 127)),
+    tick: t(n.tick),
+    duration: Math.max(1, t(n.duration)),
+    velocity: Math.round(num(n.velocity, 100, 1, 127)),
+    releaseVelocity: Math.round(num(n.releaseVelocity, 64, 0, 127)),
+  }));
   const controls: ControlEvent[] = arr(e.controls)
     .filter((c) => CONTROL_KINDS.includes(c.kind as ControlKind))
     .map((c) => {
@@ -116,7 +123,10 @@ function parseTrack(e: Json, index: number, t: (v: unknown) => number): Track {
         tick: t(c.tick),
         kind,
         controller: Math.round(num(c.controller, 0, 0, 127)),
-        value: kind === 'pitchBend' ? Math.round(num(c.value, 0, -8192, 8191)) : Math.round(num(c.value, 0, 0, 127)),
+        value:
+          kind === 'pitchBend'
+            ? Math.round(num(c.value, 0, -8192, 8191))
+            : Math.round(num(c.value, 0, 0, 127)),
       };
     });
   return {

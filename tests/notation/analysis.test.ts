@@ -7,7 +7,10 @@ describe('key detection', () => {
   it('detects major and minor keys', () => {
     const cMajor = [60, 62, 64, 65, 67, 69, 71, 72, 67, 64, 60].map((pitch) => ({ pitch, duration: 1 }));
     expect(detectKey(cMajor)).toMatchObject({ fifths: 0, mode: 'major' });
-    const aMinor = [57, 59, 60, 62, 64, 65, 68, 69, 64, 57, 60, 64, 68, 69].map((pitch) => ({ pitch, duration: 1 }));
+    const aMinor = [57, 59, 60, 62, 64, 65, 68, 69, 64, 57, 60, 64, 68, 69].map((pitch) => ({
+      pitch,
+      duration: 1,
+    }));
     expect(detectKey(aMinor)).toMatchObject({ fifths: 0, mode: 'minor' });
     const eFlat = [63, 65, 67, 68, 70, 72, 74, 75, 70, 67, 63].map((pitch) => ({ pitch, duration: 1 }));
     expect(detectKey(eFlat).fifths).toBe(-3);
