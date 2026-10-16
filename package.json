@@ -1,0 +1,63 @@
+{
+  "name": "synth-piano",
+  "productName": "Synth Piano",
+  "version": "2.0.0",
+  "description": "MIDI controller, recorder and piano-roll editor for Windows with a sheet music (PDF / MusicXML) exporter.",
+  "main": "./out/main/index.js",
+  "author": "Ranzlappen",
+  "license": "MIT",
+  "homepage": "https://github.com/Ranzlappen/synth-piano",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Ranzlappen/synth-piano.git"
+  },
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "postinstall": "node scripts/copy-vendor.mjs",
+    "dev": "electron-vite dev",
+    "dev:web": "vite --config vite.web.config.ts",
+    "build": "node scripts/copy-vendor.mjs && electron-vite build",
+    "preview": "electron-vite preview",
+    "typecheck": "tsc -p tsconfig.node.json --noEmit && tsc -p tsconfig.web.json --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm run typecheck && npm run lint && npm run test",
+    "dist": "npm run build && electron-builder --win --publish never",
+    "dist:dir": "npm run build && electron-builder --dir --publish never"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.10"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^5.2.0",
+    "electron": "~44.7.2",
+    "electron-builder": "^26.15.3",
+    "electron-vite": "^5.0.0",
+    "eslint": "^10.13.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.0.0",
+    "immer": "^11.1.21",
+    "jsdom": "^30.0.0",
+    "lucide-react": "^1.50.0",
+    "prettier": "^3.6.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.2",
+    "verovio": "6.3.0",
+    "vite": "^7.3.7",
+    "vitest": "^5.0.5",
+    "zustand": "^5.0.15"
+  }
+}
