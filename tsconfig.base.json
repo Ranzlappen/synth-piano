@@ -15,15 +15,9 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@core/*": [
-        "./src/core/*"
-      ],
-      "@shared/*": [
-        "./src/shared/*"
-      ],
-      "@renderer/*": [
-        "./src/renderer/src/*"
-      ]
+      "@core/*": ["./src/core/*"],
+      "@shared/*": ["./src/shared/*"],
+      "@renderer/*": ["./src/renderer/src/*"]
     }
   }
 }

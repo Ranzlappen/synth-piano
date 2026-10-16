@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffc35c"/>
+      <stop offset="1" stop-color="#ff8a3d"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a3f4d"/>
+      <stop offset="1" stop-color="#23262f"/>
+    </linearGradient>
+  </defs>
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="url(#bg)"/>
+  <rect x="16" y="16" width="480" height="480" rx="112" fill="none" stroke="#ffffff" stroke-opacity="0.25" stroke-width="6"/>
+  <!-- grand piano body (top view) -->
+  <path d="M120 112 H262 C300 112 318 136 330 170 C344 210 372 222 392 232 C410 241 420 260 420 284 V384 H120 Z" fill="url(#body)"/>
+  <!-- music note on the lid -->
+  <g fill="#ffc35c">
+    <rect x="236" y="150" width="14" height="96" rx="4"/>
+    <path d="M250 150 C276 156 296 170 300 196 C286 182 270 178 250 178 Z"/>
+    <ellipse cx="222" cy="248" rx="30" ry="22" transform="rotate(-20 222 248)"/>
+  </g>
+  <!-- keyboard -->
+  <rect x="120" y="300" width="300" height="96" rx="10" fill="#f4f5f8"/>
+  <g fill="#c9ccd6">
+    <rect x="161" y="300" width="3" height="96"/>
+    <rect x="204" y="300" width="3" height="96"/>
+    <rect x="247" y="300" width="3" height="96"/>
+    <rect x="290" y="300" width="3" height="96"/>
+    <rect x="333" y="300" width="3" height="96"/>
+    <rect x="376" y="300" width="3" height="96"/>
+  </g>
+  <g fill="#23262f">
+    <rect x="148" y="300" width="28" height="56" rx="4"/>
+    <rect x="191" y="300" width="28" height="56" rx="4"/>
+    <rect x="277" y="300" width="28" height="56" rx="4"/>
+    <rect x="320" y="300" width="28" height="56" rx="4"/>
+    <rect x="363" y="300" width="28" height="56" rx="4"/>
+  </g>
+  <rect x="120" y="292" width="300" height="12" rx="4" fill="#2f3340"/>
+</svg>
