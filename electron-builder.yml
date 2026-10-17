@@ -1,0 +1,49 @@
+# Windows packaging. Build locally with `npm run dist`; CI builds releases (see .github/workflows).
+appId: com.ranzlappen.synthpiano
+productName: Synth Piano
+copyright: Copyright © 2025-2026 Ranzlappen
+directories:
+  output: release
+  buildResources: build
+files:
+  - out/**
+  - package.json
+  - '!**/*.map'
+# Verovio (LGPL-3.0) stays a separate, replaceable file outside the asar archive.
+asarUnpack:
+  - out/renderer/vendor/**
+npmRebuild: false
+electronLanguages:
+  - en-US
+  - en-GB
+  - de
+fileAssociations:
+  - ext: synthpiano
+    name: Synth Piano Project
+    description: Synth Piano Project
+    icon: build/icon.ico
+    role: Editor
+win:
+  icon: build/icon.ico
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Synth Piano
+  deleteAppDataOnUninstall: false
+  license: LICENSE
+  artifactName: Synth-Piano-Setup-${version}.${ext}
+portable:
+  artifactName: Synth-Piano-${version}-Portable.${ext}
+publish:
+  provider: github
+  owner: Ranzlappen
+  repo: synth-piano
+  releaseType: release

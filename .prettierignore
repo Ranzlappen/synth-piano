@@ -1,0 +1,7 @@
+out
+dist
+release
+node_modules
+src/renderer/public/vendor
+package-lock.json
+*.md
