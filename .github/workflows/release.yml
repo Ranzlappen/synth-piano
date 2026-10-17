@@ -36,7 +36,7 @@ jobs:
       releasable: ${{ steps.next.outputs.releasable }}
       notes: ${{ steps.next.outputs.notes }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: actions/setup-node@v6
@@ -54,7 +54,7 @@ jobs:
     if: needs.version.outputs.releasable == 'true'
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: 22
