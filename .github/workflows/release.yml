@@ -70,7 +70,7 @@ jobs:
           # Optional Authenticode signing: add a base64 .pfx as WIN_CSC_LINK and its password as WIN_CSC_KEY_PASSWORD.
           CSC_LINK: ${{ secrets.WIN_CSC_LINK }}
           CSC_KEY_PASSWORD: ${{ secrets.WIN_CSC_KEY_PASSWORD }}
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         with:
           name: release-files
           path: |
